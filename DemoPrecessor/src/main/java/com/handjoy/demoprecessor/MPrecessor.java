@@ -2,8 +2,13 @@ package com.handjoy.demoprecessor;
 
 import com.google.auto.service.AutoService;
 import com.handjoy.demoannotation.MFirstAnnotation;
+import com.squareup.javapoet.JavaFile;
+import com.squareup.javapoet.MethodSpec;
+import com.squareup.javapoet.TypeSpec;
 
+import java.io.IOException;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -15,16 +20,20 @@ import javax.annotation.processing.Processor;
 import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.Modifier;
+import javax.lang.model.element.Name;
+import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
 import javax.tools.Diagnostic;
 
 @AutoService(Processor.class)
 public class MPrecessor extends AbstractProcessor {
-    private Filer filerUtils; // 文件写入
-    private Elements elementUtils; // 操作Element工具类
-    private Messager messagerUtils; // Log 日志
-    private Map<String, String> options; // 额外配置参数
+    private Filer filerUtils; //
+    private Elements elementUtils; //
+    private Messager messagerUtils; //
+    private Map<String, String> options; //
 
     @Override
     public synchronized void init(ProcessingEnvironment processingEnvironment) {
@@ -50,13 +59,51 @@ public class MPrecessor extends AbstractProcessor {
         Set<? extends Element> elementsAnnotatedWith = roundEnvironment.getElementsAnnotatedWith(MFirstAnnotation.class);
         for (Element element : elementsAnnotatedWith) {
             if (element.getKind()==ElementKind.FIELD) {
-                messagerUtils.printMessage(Diagnostic.Kind.OTHER,"准备好了，我要开始装逼了");
-                String clzName = element.getSimpleName().toString();
+                messagerUtils.printMessage(Diagnostic.Kind.OTHER,"ready go");
+                Name clzName = element.getSimpleName();
+                Set<Modifier> modifiers = element.getModifiers();
+                TypeMirror typeMirror = element.asType();
+                ElementKind kind = element.getKind();
+                List<? extends Element> enclosedElements = element.getEnclosedElements();
+                Element enclosingElement = element.getEnclosingElement();
+
+                String msg=String.format("SimpleName:%s,modifiers:%s,typeMirror:%s,kind:%s,enclosedElements:%s,enclosingElement:%s",
+                        clzName,modifiers,typeMirror,kind,enclosedElements,enclosingElement);
+                messagerUtils.printMessage(Diagnostic.Kind.NOTE,msg);
+//
+                PackageElement packageOf = elementUtils.getPackageOf(element);
+                Name simpleName = packageOf.getSimpleName();
+                Name qualifiedName = packageOf.getQualifiedName();
+                String pckMsg=String.format("simpleName:%s,QualifiedName:%s",simpleName,qualifiedName);
+                messagerUtils.printMessage(Diagnostic.Kind.NOTE,pckMsg);
+
+                MFirstAnnotation annotation=element.getAnnotation(MFirstAnnotation.class);
 
 
+                MethodSpec main = MethodSpec.methodBuilder("inject")
+                        .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+                        .returns(void.class)
+                        .addParameter(String[].class, "args")
+                        .addStatement("$T.out.println($S)", System.class, "View id value:"+annotation.value())
+                        .build();
+
+                TypeSpec helloWorld = TypeSpec.classBuilder("InjectImpl")
+                        .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                        .addMethod(main)
+                        .build();
+
+                JavaFile javaFile = JavaFile
+                        .builder(qualifiedName.toString(), helloWorld)
+                        .build();
+
+                try {
+                    javaFile.writeTo(filerUtils);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
 
             }else {
-                messagerUtils.printMessage(Diagnostic.Kind.ERROR,"只支持对变量的修饰");
+                messagerUtils.printMessage(Diagnostic.Kind.ERROR,"not support");
             }
         }
 
