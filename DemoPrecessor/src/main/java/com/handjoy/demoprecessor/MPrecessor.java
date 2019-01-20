@@ -60,80 +60,6 @@ public class MPrecessor extends AbstractProcessor {
         return types;
     }
 
-    private void processBindView(RoundEnvironment roundEnvironment) {
-        for (Element element : roundEnvironment.getElementsAnnotatedWith(BindView.class)) {
-            if (element.getKind() == ElementKind.FIELD) {
-
-                Element enclosingElement = element.getEnclosingElement();
-                PackageElement packageOf = elementUtils.getPackageOf(enclosingElement);
-                String key = packageOf.toString() + enclosingElement.getSimpleName().toString();
-
-                BindView annotation = element.getAnnotation(BindView.class);
-                ProcessorBean processor = helper.getOrEmpty(key);
-                processor.setFileName(enclosingElement.getSimpleName().toString() + "_ViewBinding");
-                processor.setPackageName(packageOf.toString());
-                processor.setTargetName(enclosingElement.getSimpleName().toString());
-                helper.checkAndBuildParameter(processor);
-                helper.checkAndBuildInject(processor);
-                processor.setmInjectMethod(processor
-                        .getmInjectMethod()
-                        .toBuilder()
-                        .addStatement("$L.$L=$L.findViewById($L)",
-                                enclosingElement.getSimpleName().toString().toLowerCase(),
-                                element.getSimpleName().toString(),
-                                enclosingElement.getSimpleName().toString().toLowerCase(),
-                                annotation.value())
-                        .build());
-
-            } else {
-                logE("bindview", "@BindView not support this kind %s", element.getKind());
-            }
-        }
-    }
-
-    private void processOnClick(RoundEnvironment roundEnvironment) {
-        for (Element element : roundEnvironment.getElementsAnnotatedWith(OnClick.class)) {
-            if (element.getKind() == ElementKind.METHOD) {
-
-                Element enclosingElement = element.getEnclosingElement();
-                PackageElement packageOf = elementUtils.getPackageOf(enclosingElement);
-                String key = packageOf.toString() + enclosingElement.getSimpleName().toString();
-
-                OnClick annotation = element.getAnnotation(OnClick.class);
-                ProcessorBean processor = helper.getOrEmpty(key);
-                processor.setFileName(enclosingElement.getSimpleName().toString() + "_ViewBinding");
-                processor.setPackageName(packageOf.toString());
-                processor.setTargetName(enclosingElement.getSimpleName().toString());
-                helper.checkAndBuildParameter(processor);
-                helper.checkAndBuildInject(processor);
-                MethodSpec methodSpec = processor.getmInjectMethod();
-                for (int id : annotation.value()) {
-                    methodSpec = methodSpec.toBuilder().addStatement("$L.findViewById($L).setOnClickListener(new $T.OnClickListener() {\n" +
-                                    "      @Override\n" +
-                                    "      public void onClick(View v) {\n" +
-                                    "        $L.$L(v);\n" +
-                                    "      }\n" +
-                                    "    })\n",
-                            enclosingElement.getSimpleName().toString().toLowerCase(),
-                            id,
-                            MConstants.CLASSNAME_VIEW,
-                            enclosingElement.getSimpleName().toString().toLowerCase(),
-                            element.getSimpleName().toString()
-                    )
-                            .build();
-                }
-                processor.setmInjectMethod(methodSpec);
-
-            } else {
-                logE("OnClick", "@OnClick not support this kind %s", element.getKind());
-            }
-        }
-    }
-
-
-    private void logE(String tag, String format, Object... objs) {
-        messagerUtils.printMessage(Diagnostic.Kind.ERROR, String.format(format, objs));
-    }
 
     @Override
     public boolean process(Set<? extends TypeElement> set, RoundEnvironment roundEnvironment) {
@@ -284,5 +210,81 @@ public class MPrecessor extends AbstractProcessor {
         }
 */
         return false;
+    }
+
+
+    private void processBindView(RoundEnvironment roundEnvironment) {
+        for (Element element : roundEnvironment.getElementsAnnotatedWith(BindView.class)) {
+            if (element.getKind() == ElementKind.FIELD) {
+
+                Element enclosingElement = element.getEnclosingElement();
+                PackageElement packageOf = elementUtils.getPackageOf(enclosingElement);
+                String key = packageOf.toString() + enclosingElement.getSimpleName().toString();
+
+                BindView annotation = element.getAnnotation(BindView.class);
+                ProcessorBean processor = helper.getOrEmpty(key);
+                processor.setFileName(enclosingElement.getSimpleName().toString() + "_ViewBinding");
+                processor.setPackageName(packageOf.toString());
+                processor.setTargetName(enclosingElement.getSimpleName().toString());
+                helper.checkAndBuildParameter(processor);
+                helper.checkAndBuildInject(processor);
+                processor.setmInjectMethod(processor
+                        .getmInjectMethod()
+                        .toBuilder()
+                        .addStatement("$L.$L=$L.findViewById($L)",
+                                enclosingElement.getSimpleName().toString().toLowerCase(),
+                                element.getSimpleName().toString(),
+                                enclosingElement.getSimpleName().toString().toLowerCase(),
+                                annotation.value())
+                        .build());
+
+            } else {
+                logE("bindview", "@BindView not support this kind %s", element.getKind());
+            }
+        }
+    }
+
+    private void processOnClick(RoundEnvironment roundEnvironment) {
+        for (Element element : roundEnvironment.getElementsAnnotatedWith(OnClick.class)) {
+            if (element.getKind() == ElementKind.METHOD) {
+
+                Element enclosingElement = element.getEnclosingElement();
+                PackageElement packageOf = elementUtils.getPackageOf(enclosingElement);
+                String key = packageOf.toString() + enclosingElement.getSimpleName().toString();
+
+                OnClick annotation = element.getAnnotation(OnClick.class);
+                ProcessorBean processor = helper.getOrEmpty(key);
+                processor.setFileName(enclosingElement.getSimpleName().toString() + "_ViewBinding");
+                processor.setPackageName(packageOf.toString());
+                processor.setTargetName(enclosingElement.getSimpleName().toString());
+                helper.checkAndBuildParameter(processor);
+                helper.checkAndBuildInject(processor);
+                MethodSpec methodSpec = processor.getmInjectMethod();
+                for (int id : annotation.value()) {
+                    methodSpec = methodSpec.toBuilder().addStatement("$L.findViewById($L).setOnClickListener(new $T.OnClickListener() {\n" +
+                                    "      @Override\n" +
+                                    "      public void onClick(View v) {\n" +
+                                    "        $L.$L(v);\n" +
+                                    "      }\n" +
+                                    "    })\n",
+                            enclosingElement.getSimpleName().toString().toLowerCase(),
+                            id,
+                            MConstants.CLASSNAME_VIEW,
+                            enclosingElement.getSimpleName().toString().toLowerCase(),
+                            element.getSimpleName().toString()
+                    )
+                            .build();
+                }
+                processor.setmInjectMethod(methodSpec);
+
+            } else {
+                logE("OnClick", "@OnClick not support this kind %s", element.getKind());
+            }
+        }
+    }
+
+
+    private void logE(String tag, String format, Object... objs) {
+        messagerUtils.printMessage(Diagnostic.Kind.ERROR, String.format(format, objs));
     }
 }

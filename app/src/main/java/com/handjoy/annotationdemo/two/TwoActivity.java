@@ -8,6 +8,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.handjoy.annotationdemo.BindUtils;
 import com.handjoy.annotationdemo.R;
 import com.handjoy.demoannotation.BindView;
 import com.handjoy.demoannotation.OnClick;
@@ -24,7 +25,7 @@ public class TwoActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        TwoActivity_ViewBinding.inject(this);
+        BindUtils.bind(this);
     }
 
     @OnClick(R.id.hello)

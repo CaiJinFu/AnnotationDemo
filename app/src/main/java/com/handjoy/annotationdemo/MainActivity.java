@@ -1,11 +1,13 @@
 package com.handjoy.annotationdemo;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.handjoy.annotationdemo.two.TwoActivity;
 import com.handjoy.demoannotation.BindView;
 import com.handjoy.demoannotation.OnClick;
 
@@ -20,7 +22,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        MainActivity_ViewBinding.inject(this);
+        BindUtils.bind(this);
         mTv.setText("not crash");
         mBtnTest.setText("btn");
     }
@@ -28,7 +30,7 @@ public class MainActivity extends AppCompatActivity {
 
     @OnClick({R.id.hello,R.id.test})
     void onViewClick(View v){
-
+        startActivity(new Intent(this, TwoActivity.class));
     }
 
 
