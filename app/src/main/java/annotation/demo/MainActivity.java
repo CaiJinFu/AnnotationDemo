@@ -3,8 +3,6 @@ package annotation.demo;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
-import annotation.demo.factorys.IFruitFactory;
-
 public class MainActivity extends AppCompatActivity {
 
     @Override
@@ -15,6 +13,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void produceFruit() {
-        IFruitFactory.create(5).produce();
+        IFruitFactory.create(3).produce();
     }
 }
