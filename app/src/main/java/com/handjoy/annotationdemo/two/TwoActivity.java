@@ -15,9 +15,9 @@ import com.handjoy.demoannotation.OnClick;
 
 public class TwoActivity extends AppCompatActivity {
 
-
     @BindView(R.id.hello)
     TextView mTv;
+
     @BindView(R.id.test)
     Button mBtnTest;
 
@@ -29,8 +29,8 @@ public class TwoActivity extends AppCompatActivity {
     }
 
     @OnClick(R.id.hello)
-    void onViewClick(View v){
-        Log.i("test","hello");
+    void onViewClick(View v) {
+        Log.i("test", "hello");
     }
 
 }

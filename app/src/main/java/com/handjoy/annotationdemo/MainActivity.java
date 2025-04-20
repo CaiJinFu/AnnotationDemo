@@ -15,6 +15,7 @@ public class MainActivity extends AppCompatActivity {
 
     @BindView(R.id.hello)
     TextView mTv;
+
     @BindView(R.id.test)
     Button mBtnTest;
 
@@ -27,11 +28,9 @@ public class MainActivity extends AppCompatActivity {
         mBtnTest.setText("btn");
     }
 
-
-    @OnClick({R.id.hello,R.id.test})
-    void onViewClick(View v){
+    @OnClick({R.id.hello, R.id.test})
+    void onViewClick(View v) {
         startActivity(new Intent(this, TwoActivity.class));
     }
-
 
 }
